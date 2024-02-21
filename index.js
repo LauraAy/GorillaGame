@@ -24,6 +24,8 @@ function newGame() {
     buildings: generateBuildings(),
   };
 
+	calculateScale();
+
   initializeBookPosition();
 
 	draw();
@@ -57,6 +59,22 @@ function newGame() {
 		}
 		return buildings;
 	}
+
+	function calculateScale() {
+		const lastBuilding = state.buildings.at(-1);
+		const totalWidthOfTheCity = lastBuilding.x + lastBuilding.width;
+		
+		state.scale = window.innerWidth / totalWidthOfTheCity;
+	}
+
+	window.addEventListener("resize", () => {
+		location.reload()
+		canvas.width = window.innerWidth;
+		canvas.height = window.innerHeight;
+		calculateScale();
+		initializeBombPosition();
+		draw();
+	});
   
   function initializeBookPosition() {
 		const building =
@@ -81,6 +99,7 @@ function draw() {
   // Flip coordinate system upside down 
   ctx.translate(0, window.innerHeight); 
   ctx.scale(1, -1); 
+	ctx.scale(state.scale, state.scale);
 
 	// Draw scene 
 	drawBackground(); 
@@ -96,8 +115,13 @@ ctx.restore();
 
 
 function drawBackground() {
-  ctx.fillStyle = "#58A8D8";
-  ctx.fillRect(0, 0, window.innerWidth, window.innerHeight);
+	ctx.fillStyle = "#58A8D8";
+  ctx.fillRect(
+    0,
+    0,
+    window.innerWidth / state.scale,
+    window.innerHeight / state.scale
+  );
 }
 
 function drawBuildings() {
