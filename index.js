@@ -37,7 +37,7 @@ function newGame() {
   state = {
 		scale: 1, 
     phase: "aiming",  // aiming | in flight | celebrating
-    currentPlayer: 1, 
+    currentPlayer: "Ms Bennet", 
     book: {
         x: undefined,
         y:undefined,
@@ -107,14 +107,14 @@ function newGame() {
   
   function initializeBookPosition() {
 		const building =
-    state.currentPlayer === 1
+    state.currentPlayer === "Ms Bennet"
       ? state.buildings.at(1) // Second building
       : state.buildings.at(-2); // Second last building
 
   const gorillaX = building.x + building.width / 2;
   const gorillaY = building.height;
 
-  const gorillaHandOffsetX = state.currentPlayer === 1 ? -28 : 28;
+  const gorillaHandOffsetX = state.currentPlayer === "Ms Bennet" ? -28 : 28;
   const gorillaHandOffsetY = 107;
   
   state.book.x = gorillaX + gorillaHandOffsetX;
@@ -142,8 +142,8 @@ function draw() {
 	// Draw scene 
 	drawBackground(); 
 	drawBuildings();
-	drawGorilla(1);
-	drawGorilla(2);
+	drawGorilla("Ms Bennet");
+	drawGorilla("Mr. Darcy");
 	drawBook();
 
 	// Restore transformation 
@@ -171,7 +171,7 @@ function drawBuildings() {
 function drawGorilla(player) {
 	ctx.save();
   const building =
-    player === 1
+    player === "Ms Bennet"
       ? state.buildings.at(1) // Second building
       : state.buildings.at(-2); // Second last building
 
@@ -217,7 +217,7 @@ function drawGorillaLeftArm(player) {
   ctx.moveTo(-13, 50);
 
   if (
-    (state.phase === "aiming" && state.currentPlayer === 1 && player === 1) ||
+    (state.phase === "aiming" && state.currentPlayer === "Ms Bennet" && player === "Ms Bennet") ||
     (state.phase === "celebrating" && state.currentPlayer === player)
   ) {
     ctx.quadraticCurveTo(-44, 63, -28, 107);
@@ -236,7 +236,7 @@ function drawGorillaRightArm(player) {
   ctx.moveTo(+13, 50);
 
   if (
-    (state.phase === "aiming" && state.currentPlayer === 2 && player === 2) ||
+    (state.phase === "aiming" && state.currentPlayer === "Mr. Darcy" && player === "Mr. Darcy") ||
     (state.phase === "celebrating" && state.currentPlayer === player)
   ) {
     ctx.quadraticCurveTo(+44, 63, +28, 107);
@@ -327,7 +327,7 @@ function setInfo(deltaX, deltaY) {
   const angleInRadians = Math.asin(deltaY / hypotenuse);
   const angleInDegrees = (angleInRadians / Math.PI) * 180;
   
-  if (state.currentPlayer === 1) {
+  if (state.currentPlayer === "Ms Bennet") {
     angle1DOM.innerText = Math.round(angleInDegrees);
     velocity1DOM.innerText = Math.round(hypotenuse);
   } else {
@@ -371,7 +371,7 @@ function animate(timestamp) {
 
     // Handle the case when we hit a building or the book got off-screen
     if (miss) {
-      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1; // Switch players
+      state.currentPlayer = state.currentPlayer === "Ms Bennet" ? "Mr. Darcy" : "Ms Bennet"; // Switch players
       state.phase = "aiming";
       initializeBookPosition();
 
@@ -431,9 +431,9 @@ function checkBuildingHit() {
 }
 
 function checkGorillaHit() {
-  const enemyPlayer = state.currentPlayer === 1 ? 2 : 1;
+  const enemyPlayer = state.currentPlayer === "Ms Bennet" ? "Mr. Darcy" : "Ms Bennet";
   const enemyBuilding =
-    enemyPlayer === 1
+    enemyPlayer === "Ms Bennet"
       ? state.buildings.at(1) // Second building
       : state.buildings.at(-2); // Second last building
 
@@ -459,7 +459,7 @@ function checkGorillaHit() {
 }
 
 function announceWinner() {
-  winnerDOM.innerText = `Player ${state.currentPlayer}`;
+  winnerDOM.innerText = `${state.currentPlayer}`;
   congratulationsDOM.style.visibility = "visible";
 }
 

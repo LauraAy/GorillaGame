@@ -44,3 +44,11 @@
     position: absolute;
     visibility: hidden;
   }
+  #new-game {
+    position: absolute;
+    font-size: 18px;
+    width: 50%;
+    left: 25%;
+    right: 25%;
+   
+  }
