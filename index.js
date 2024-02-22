@@ -1,6 +1,11 @@
 // The state of the game
 let state = {};
-// ...
+
+let isDragging = false;
+let dragStartX = undefined;
+let dragStartY = undefined;
+
+let previousAnimationTimestamp = undefined;
 
 // The canvas element and its drawing context 
 const canvas = document.getElementById("game"); 
@@ -9,11 +14,28 @@ canvas.height = window.innerHeight;
 const ctx = canvas.getContext("2d"); 
 
 
+// Left info panel
+const angle1DOM = document.querySelector("#info-left .angle");
+const velocity1DOM = document.querySelector("#info-left .velocity");
+
+// Right info panel
+const angle2DOM = document.querySelector("#info-right .angle");
+const velocity2DOM = document.querySelector("#info-right .velocity");
+
+// The book's grab area
+const bookGrabAreaDOM = document.getElementById("book-grab-area");
+
+// Congratulations panel
+const congratulationsDOM = document.getElementById("congratulations");
+const winnerDOM = document.getElementById("winner");
+const newGameButtonDOM = document.getElementById("new-game");
+
 newGame();
 
 function newGame() {
   // Initialize game state
   state = {
+		scale: 1, 
     phase: "aiming",  // aiming | in flight | celebrating
     currentPlayer: 1, 
     book: {
@@ -27,6 +49,13 @@ function newGame() {
 	calculateScale();
 
   initializeBookPosition();
+
+  // Reset HTML elements
+  congratulationsDOM.style.visibility = "hidden";
+  angle1DOM.innerText = 0;
+  velocity1DOM.innerText = 0;
+  angle2DOM.innerText = 0;
+  velocity2DOM.innerText = 0;
 
 	draw();
 }
@@ -47,7 +76,7 @@ function newGame() {
 			const platformWithGorilla = index === 1 || index === 6;
 	
 			const minHeight = 100;
-			const maxHeight = 350;
+			const maxHeight = 300;
 			const minHeightGorilla = 30;
 			const maxHeightGorilla = 150;
 	
@@ -72,7 +101,7 @@ function newGame() {
 		canvas.width = window.innerWidth;
 		canvas.height = window.innerHeight;
 		calculateScale();
-		initializeBombPosition();
+		initializeBookPosition();
 		draw();
 	});
   
@@ -92,10 +121,19 @@ function newGame() {
   state.book.y = gorillaY + gorillaHandOffsetY;
   state.book.velocity.x = 0;
   state.book.velocity.y = 0;
+
+	  // Initialize the position of the grab area in HTML
+		const grabAreaRadius = 5;
+		const grabAreaRadius2 = 10
+		const left = state.book.x * state.scale - grabAreaRadius2;
+		const bottom = state.book.y * state.scale - grabAreaRadius;
+		bookGrabAreaDOM.style.left = `${left}px`;
+		bookGrabAreaDOM.style.bottom = `${bottom}px`;
   }
 
 function draw() {
 	ctx.save(); 
+
   // Flip coordinate system upside down 
   ctx.translate(0, window.innerHeight); 
   ctx.scale(1, -1); 
@@ -111,8 +149,6 @@ function draw() {
 	// Restore transformation 
 ctx.restore(); 
 }
-
-
 
 function drawBackground() {
 	ctx.fillStyle = "#58A8D8";
@@ -233,6 +269,23 @@ function drawGorillaFace() {
 }
 
 function drawBook() {
+
+	 // Draw throwing trajectory
+	 if (state.phase === "aiming") {
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.setLineDash([3, 8]);
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+    ctx.moveTo(state.book.x, state.book.y);
+    ctx.lineTo(
+      state.book.x + state.book.velocity.x,
+      state.book.y + state.book.velocity.y
+    );
+    ctx.stroke();
+  }
+
+	//Draw book graphic
 	ctx.fillStyle = "white";
   ctx.beginPath();
 	ctx.fillRect(state.book.x, state.book.y, 22, 32)
@@ -245,12 +298,169 @@ function drawBook() {
 
 
 // Event handlers
-// ...
+bookGrabAreaDOM.addEventListener("mousedown", function (e) {
+  if (state.phase === "aiming") {
+    isDragging = true;
+
+    dragStartX = e.clientX;
+    dragStartY = e.clientY;
+    
+    document.body.style.cursor = "grabbing";
+  }
+});
+
+window.addEventListener("mousemove", function (e) {
+  if (isDragging) {
+    let deltaX = e.clientX - dragStartX;
+    let deltaY = e.clientY - dragStartY;
+
+    state.book.velocity.x = -deltaX;
+    state.book.velocity.y = +deltaY;
+    setInfo(deltaX, deltaY);
+
+    draw();
+  }
+});
+
+function setInfo(deltaX, deltaY) {
+  const hypotenuse = Math.sqrt(deltaX ** 2 + deltaY ** 2);
+  const angleInRadians = Math.asin(deltaY / hypotenuse);
+  const angleInDegrees = (angleInRadians / Math.PI) * 180;
+  
+  if (state.currentPlayer === 1) {
+    angle1DOM.innerText = Math.round(angleInDegrees);
+    velocity1DOM.innerText = Math.round(hypotenuse);
+  } else {
+    angle2DOM.innerText = Math.round(angleInDegrees);
+    velocity2DOM.innerText = Math.round(hypotenuse);
+  }
+}
+
+window.addEventListener("mouseup", function () {
+  if (isDragging) {
+    isDragging = false;
+
+    document.body.style.cursor = "default";
+    
+    throwBook();
+  }
+});
 
 function throwBook() {
-  // ...
+  state.phase = "in flight";
+  previousAnimationTimestamp = undefined;
+  requestAnimationFrame(animate);
 }
 
 function animate(timestamp) {
-  // ...
+  if (previousAnimationTimestamp === undefined) {
+    previousAnimationTimestamp = timestamp;
+    requestAnimationFrame(animate);
+    return;
+  }
+
+  const elapsedTime = timestamp - previousAnimationTimestamp;
+
+  const hitDetectionPrecision = 10;
+  for (let i = 0; i < hitDetectionPrecision; i++) {
+    moveBook(elapsedTime / hitDetectionPrecision);
+
+    // Hit detection
+    const miss = checkFrameHit() || checkBuildingHit();
+    const hit = checkGorillaHit();
+
+    // Handle the case when we hit a building or the book got off-screen
+    if (miss) {
+      state.currentPlayer = state.currentPlayer === 1 ? 2 : 1; // Switch players
+      state.phase = "aiming";
+      initializeBookPosition();
+
+      draw();
+      return;
+    }
+
+    // Handle the case when we hit the enemy
+    if (hit) {
+      state.phase = "celebrating";
+      announceWinner();
+
+      draw();
+      return;
+    }
+  }
+
+  draw();
+
+  // Continue the animation loop
+  previousAnimationTimestamp = timestamp;
+  requestAnimationFrame(animate);
 }
+
+function moveBook(elapsedTime) {
+  const multiplier = elapsedTime / 200;
+
+  // Adjust trajectory by gravity
+  state.book.velocity.y -= 20 * multiplier;
+
+  // Calculate new position
+  state.book.x += state.book.velocity.x * multiplier;
+  state.book.y += state.book.velocity.y * multiplier;
+}
+
+function checkFrameHit() {
+  if (
+    state.book.y < 0 ||
+    state.book.x < 0 ||
+    state.book.x > window.innerWidth / state.scale
+  ) {
+    return true; // The book is off-screen
+  }
+}
+
+function checkBuildingHit() {
+  for (let i = 0; i < state.buildings.length; i++) {
+    const building = state.buildings[i];
+    if (
+      state.book.x + 4 > building.x &&
+      state.book.x - 4 < building.x + building.width &&
+      state.book.y - 4 < 0 + building.height
+    ) {
+      return true; // Building hit
+    }
+  }
+}
+
+function checkGorillaHit() {
+  const enemyPlayer = state.currentPlayer === 1 ? 2 : 1;
+  const enemyBuilding =
+    enemyPlayer === 1
+      ? state.buildings.at(1) // Second building
+      : state.buildings.at(-2); // Second last building
+
+  ctx.save();
+
+  ctx.translate(
+    enemyBuilding.x + enemyBuilding.width / 2,
+    enemyBuilding.height
+  );
+
+  drawGorillaBody();
+  let hit = ctx.isPointInPath(state.book.x, state.book.y);
+
+  drawGorillaLeftArm(enemyPlayer);
+  hit ||= ctx.isPointInStroke(state.book.x, state.book.y);
+
+  drawGorillaRightArm(enemyPlayer);
+  hit ||= ctx.isPointInStroke(state.book.x, state.book.y);
+
+  ctx.restore();
+
+  return hit;
+}
+
+function announceWinner() {
+  winnerDOM.innerText = `Player ${state.currentPlayer}`;
+  congratulationsDOM.style.visibility = "visible";
+}
+
+newGameButtonDOM.addEventListener("click", newGame);
