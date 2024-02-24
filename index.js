@@ -40,7 +40,7 @@ function newGame() {
     book: {
         x: undefined,
         y:undefined,
-        velocity: { x:0, y: 0 }, 
+        velocity: { x: 0, y: 0 }, 
     }, 
     //Buildings
 		backgroundBuildings: [],
@@ -71,24 +71,6 @@ function newGame() {
   velocity2DOM.innerText = 0;
 
 	draw();
-}
-
-function generateBackgroundBuilding(index) {
-  const previousBuilding = state.backgroundBuildings[index - 1];
-
-  const x = previousBuilding
-    ? previousBuilding.x + previousBuilding.width + 4
-    : -30;
-
-  const minWidth = 60;
-  const maxWidth = 110;
-  const width = minWidth + Math.random() * (maxWidth - minWidth);
-
-  const minHeight = 80;
-  const maxHeight = 350;
-  const height = minHeight + Math.random() * (maxHeight - minHeight);
-
-  state.backgroundBuildings.push({ x, width, height });
 }
 
 function generateBackgroundBuilding(index) {
@@ -173,6 +155,7 @@ function generateBuilding(index) {
   state.book.y = gorillaY + gorillaHandOffsetY;
   state.book.velocity.x = 0;
   state.book.velocity.y = 0;
+	state.book.rotation = 0;
 
 	  // Initialize the position of the grab area in HTML
 		const grabAreaRadius = 5;
@@ -200,7 +183,7 @@ function draw() {
 	drawBook();
 
 	// Restore transformation 
-ctx.restore(); 
+	ctx.restore(); 
 }
 
 function drawBackground() {
@@ -321,17 +304,21 @@ function drawGorillaLeftArm(player) {
   ctx.lineWidth = 18;
 
   ctx.beginPath();
-  ctx.moveTo(-13, 50);
+  ctx.moveTo(-14, 50);
 
-  if (
-    (state.phase === "aiming" && state.currentPlayer === "Ms Bennet" && player === "Ms Bennet") ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
-  ) {
+	if (state.phase === "aiming" && state.currentPlayer === "Ms Bennet" && player === "Ms Bennet") {
+    ctx.quadraticCurveTo(
+      -44,
+      63,
+      -28 - state.book.velocity.x / 6.25,
+      107 - state.book.velocity.y / 6.25
+    );
+  } else if (state.phase === "celebrating" && state.currentPlayer === player) {
     ctx.quadraticCurveTo(-44, 63, -28, 107);
   } else {
     ctx.quadraticCurveTo(-44, 45, -28, 12);
   }
-  
+
   ctx.stroke();
 }
 
@@ -340,12 +327,16 @@ function drawGorillaRightArm(player) {
   ctx.lineWidth = 18;
 
   ctx.beginPath();
-  ctx.moveTo(+13, 50);
+  ctx.moveTo(+14, 50);
 
-  if (
-    (state.phase === "aiming" && state.currentPlayer === "Mr. Darcy" && player === "Mr. Darcy") ||
-    (state.phase === "celebrating" && state.currentPlayer === player)
-  ) {
+	if (state.phase === "aiming" && state.currentPlayer === "Mr. Darcy" && player === "Mr. Darcy") {
+    ctx.quadraticCurveTo(
+      +44,
+      63,
+      +28 - state.book.velocity.x / 6.25,
+      107 - state.book.velocity.y / 6.25
+    );
+  } else if (state.phase === "celebrating" && state.currentPlayer === player) {
     ctx.quadraticCurveTo(+44, 63, +28, 107);
   } else {
     ctx.quadraticCurveTo(+44, 45, +28, 12);
@@ -376,30 +367,64 @@ function drawGorillaFace() {
 }
 
 function drawBook() {
+	ctx.save();
+	ctx.translate(state.book.x, state.book.y)
 
-	 // Draw throwing trajectory
-	 if (state.phase === "aiming") {
+	if (state.phase === "aiming") {
+
+		//Move the book with the mouse while aiming
+		ctx.translate(-state.book.velocity.x / 6.25, -state.book.velocity.y / 6.25);
+	
+	 	// Draw throwing trajectory
     ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
     ctx.setLineDash([3, 8]);
     ctx.lineWidth = 3;
 
     ctx.beginPath();
-    ctx.moveTo(state.book.x, state.book.y);
+    ctx.moveTo(0, 0);
     ctx.lineTo(
-      state.book.x + state.book.velocity.x,
-      state.book.y + state.book.velocity.y
+      state.book.velocity.x,
+			state.book.velocity.y
     );
     ctx.stroke();
-  }
+  
 
-	//Draw book graphic
-	ctx.fillStyle = "white";
-  ctx.beginPath();
-	ctx.fillRect(state.book.x, state.book.y, 22, 32)
-	ctx.fillStyle = "#7b4818";
-	ctx.fillRect(state.book.x, state.book.y, 18, 32)
-  // ctx.arc(state.book.x, state.book.y, 10, 0, 2 * Math.PI);
-  ctx.fill();
+		//Draw book graphic
+		ctx.fillStyle = "white";
+		ctx.beginPath();
+		ctx.fillRect(0, 0, 22, 32)
+		ctx.fillStyle = "#7b4818";
+		ctx.fillRect(0, 0, 18, 32)
+  	// ctx.arc(state.book.x, state.book.y, 10, 0, 2 * Math.PI);
+  	ctx.fill();
+		}
+		else if (state.phase === "in flight") {
+			ctx.fillStyle = "white";
+			ctx.beginPath();
+			// ctx.moveTo( -8, -2);
+			// ctx.quadraticCurveTo(0, 2, -8, -2);
+			ctx.fill();
+		//Draw rotated banana
+		// ctx.fillStyle= "white";
+	// 	ctx.rotate(state.book.rotation);
+		// ctx.beginPath();
+		// ctx.moveTo(-8, -2);
+		// ctx.quadraticCurveTo(0, 2, -8, -2);
+		// ctx.fill();
+	} 
+	else {
+		//Draw book graphic
+		ctx.fillStyle = "white";
+		ctx.beginPath();
+		ctx.fillRect(0, 0, 22, 32)
+		ctx.fillStyle = "#7b4818";
+		ctx.fillRect(0, 0, 18, 32)
+  	// ctx.arc(state.book.x, state.book.y, 10, 0, 2 * Math.PI);
+  	ctx.fill();
+	}
+
+	// Restore transformation
+	ctx.restore();
 }
 
 
@@ -468,13 +493,15 @@ function animate(timestamp) {
 
   const elapsedTime = timestamp - previousAnimationTimestamp;
 
-  const hitDetectionPrecision = 10;
-  for (let i = 0; i < hitDetectionPrecision; i++) {
-    moveBook(elapsedTime / hitDetectionPrecision);
+	moveBook(elapsedTime); 
+
+  // const hitDetectionPrecision = 10;
+  // for (let i = 0; i < hitDetectionPrecision; i++) {
+  //   moveBook(elapsedTime / hitDetectionPrecision);
 
     // Hit detection
     const miss = checkFrameHit() || checkBuildingHit();
-    const hit = checkGorillaHit();
+    const hit = false; //Book hit the enemy 
 
     // Handle the case when we hit a building or the book got off-screen
     if (miss) {
@@ -494,7 +521,6 @@ function animate(timestamp) {
       draw();
       return;
     }
-  }
 
   draw();
 
@@ -512,6 +538,10 @@ function moveBook(elapsedTime) {
   // Calculate new position
   state.book.x += state.book.velocity.x * multiplier;
   state.book.y += state.book.velocity.y * multiplier;
+
+	//Rotate according to the direction
+	const direction = state.currentPlayer === "Ms Bennet" ? -1 : +1;
+	state.book.rotation += direction * multiplier;
 }
 
 function checkFrameHit() {
