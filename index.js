@@ -7,6 +7,8 @@ let dragStartY = undefined;
 
 let previousAnimationTimestamp = undefined;
 
+const blastHoleRadius = 18;
+
 // The canvas element and its drawing context 
 const canvas = document.getElementById("game"); 
 canvas.width = window.innerWidth; 
@@ -177,7 +179,7 @@ function draw() {
 	// Draw scene 
 	drawBackground(); 
 	drawBackgroundBuildings();
-	drawBuildings();
+  drawBuildingsWithBlastHoles();
 	drawGorilla("Ms Bennet");
 	drawGorilla("Mr. Darcy");
 	drawBook();
@@ -217,6 +219,31 @@ function drawBackgroundBuildings() {
     ctx.fillStyle = "#947285";
     ctx.fillRect(building.x, 0, building.width, building.height);
   });
+}
+
+function drawBuildingsWithBlastHoles() {
+  ctx.save();
+
+  state.blastHoles.forEach((blastHole) => {
+    ctx.beginPath();
+
+    // Outer shape clockwise
+    ctx.rect(
+      0,
+      0,
+      window.innerWidth / state.scale,
+      window.innerHeight / state.scale
+    );
+
+    // Inner shape counterclockwise
+    ctx.arc(blastHole.x, blastHole.y, blastHoleRadius, 0, 2 * Math.PI, true);
+
+    ctx.clip();
+  });
+
+  drawBuildings();
+
+  ctx.restore();
 }
 
 function drawBuildings() {
@@ -399,35 +426,28 @@ function drawBook() {
   	ctx.fill();
 		}
 		else if (state.phase === "in flight") {
+			//draw rotating book in flight
 			ctx.fillStyle = "white";
 			ctx.beginPath();
-			// ctx.moveTo( -8, -2);
-			// ctx.quadraticCurveTo(0, 2, -8, -2);
+			ctx.rotate(state.book.rotation);
+			ctx.fillRect(0, 0, 22, 32)
+			ctx.fillStyle = "#7b4818";
+			ctx.fillRect(0, 0, 18, 32)
 			ctx.fill();
-		//Draw rotated banana
-		// ctx.fillStyle= "white";
-	// 	ctx.rotate(state.book.rotation);
-		// ctx.beginPath();
-		// ctx.moveTo(-8, -2);
-		// ctx.quadraticCurveTo(0, 2, -8, -2);
-		// ctx.fill();
-	} 
-	else {
-		//Draw book graphic
-		ctx.fillStyle = "white";
-		ctx.beginPath();
-		ctx.fillRect(0, 0, 22, 32)
-		ctx.fillStyle = "#7b4818";
-		ctx.fillRect(0, 0, 18, 32)
-  	// ctx.arc(state.book.x, state.book.y, 10, 0, 2 * Math.PI);
-  	ctx.fill();
-	}
+		} 
+		else {
+			//Draw book graphic
+			ctx.fillStyle = "white";
+			ctx.beginPath();
+			ctx.fillRect(0, 0, 22, 32)
+			ctx.fillStyle = "#7b4818";
+			ctx.fillRect(0, 0, 18, 32)
+			ctx.fill();
+		}
 
 	// Restore transformation
 	ctx.restore();
 }
-
-
 
 // Event handlers
 bookGrabAreaDOM.addEventListener("mousedown", function (e) {
@@ -562,6 +582,7 @@ function checkBuildingHit() {
       state.book.x - 4 < building.x + building.width &&
       state.book.y - 4 < 0 + building.height
     ) {
+			state.blastHoles.push({ x: state.book.x, y: state.book.y });
       return true; // Building hit
     }
   }
