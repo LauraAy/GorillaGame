@@ -1,4 +1,5 @@
 import {quotesArray} from './quotesArray.js'
+import {victoryArray} from './victoryArray.js'
 
 console.log(quotesArray)
 // The state of the game
@@ -632,7 +633,7 @@ function announceWinner() {
 }
 
 function initialGreeting() {
-  document.getElementById("quotes").innerHTML = "Welcome to the game!"
+  document.getElementById("quotes").innerHTML = "Welcome to the Gorilla War of Words!"
   document.getElementById("author").innerHTML = "Ms Bennet and Mr. Darcy are two literary gorillas in a battle of the books! Click and drag on the book with your mouse to aim. Release click to throw the book. First gorilla to hit the other wins!";
 }
 function generateQuote() {
@@ -645,8 +646,12 @@ document.getElementById("author").innerHTML = quotes[arrayIndex].author;
 }
 
 function finalMessage() {
-  document.getElementById("quotes").innerHTML = "Veni, vidi, vici!"
-  document.getElementById("author").innerHTML = "Julius Caeser" 
+
+  const victoryQuotes = victoryArray
+
+  let arrayIndex = Math.floor(Math.random() * victoryQuotes.length);
+  document.getElementById("quotes").innerHTML = victoryQuotes[arrayIndex].quote;
+  document.getElementById("author").innerHTML = victoryQuotes[arrayIndex].author
 }
 
 newGameButtonDOM.addEventListener("click", newGame);

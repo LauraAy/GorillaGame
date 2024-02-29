@@ -60,7 +60,7 @@ export const quotesArray = [
 		author: "J.R.R. Tolkien"
 	},
 	{
-		quote: "But still, like air, I’ll rise!",
+		quote: "But still, like dust, I’ll rise!",
 		author: "Maya Angelou"
 	},
 	{
@@ -82,5 +82,37 @@ export const quotesArray = [
 	{
 		quote: "I am not afraid of storms, for I am learning how to sail my ship.",
 		author: "Louisa May Alcott"
+	},
+	{
+		quote: "Cowards die many times before their deaths; the valiant never taste of death but once.",
+		author: "William Shakespeare"
+	},
+	{
+		quote: "The strongest of all warriors are these two — Time and Patience.",
+		author: "Leo Tolstoy"
+	}, 
+	{
+		quote: "I know not all that may be coming, but be it what it will, I’ll go to it laughing.",
+		author: "Herman Melville"
+	},
+	{
+		quote: "My courage always rises with every attempt to intimidate me.",
+		author: "Jane Austen"
+	},
+	{
+		quote: "The True courage is in facing danger when you are afraid.",
+		author: "L. Frank Baum"
+	},
+	{
+		quote: "I have never died all my life.",
+		author: "Miguel de Cervantes"
+	}, 
+	{
+		quote: "Made weak by time and fate, but strong in will, to strive, to seek, to find, and not to yield.",
+		author: "Alfred Lord Tennyson"
+	},
+	{
+		quote: "The moment you doubt whether you can fly, you cease for ever to be able to do it.",
+		author: "J.M. Barrie"
 	}
 ];
