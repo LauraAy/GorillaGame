@@ -54,7 +54,11 @@ function newGame() {
 		blastHoles: [],
 
 		scale: 1,
+   
   };
+
+  // Display initial greeting
+  initialGreeting()
 
 	 // Generate background buildings
 	 for (let i = 0; i < 11; i++) {
@@ -525,10 +529,11 @@ function animate(timestamp) {
 
     // Hit detection
     const miss = checkFrameHit() || checkBuildingHit();
-    const hit = false; //Book hit the enemy 
+    const hit = checkGorillaHit(); //Book hit the enemy 
 
     // Handle the case when we hit a building or the book got off-screen
     if (miss) {
+      generateQuote()
       state.currentPlayer = state.currentPlayer === "Ms Bennet" ? "Mr. Darcy" : "Ms Bennet"; // Switch players
       state.phase = "aiming";
       initializeBookPosition();
@@ -540,6 +545,7 @@ function animate(timestamp) {
     // Handle the case when we hit the enemy
     if (hit) {
       state.phase = "celebrating";
+      finalMessage()
       announceWinner();
 
       draw();
@@ -625,7 +631,11 @@ function announceWinner() {
   congratulationsDOM.style.visibility = "visible";
 }
 
-const generateQuote = function() {
+function initialGreeting() {
+  document.getElementById("quotes").innerHTML = "Welcome to the game!"
+  document.getElementById("author").innerHTML = "Ms Bennet and Mr. Darcy are two literary gorillas in a battle of the books! Click and drag on the book with your mouse to aim. Release click to throw the book. First gorilla to hit the other wins!";
+}
+function generateQuote() {
 	
   const quotes = quotesArray
 
@@ -634,10 +644,9 @@ document.getElementById("quotes").innerHTML = quotes[arrayIndex].quote;
 document.getElementById("author").innerHTML = quotes[arrayIndex].author;
 }
 
-window.onload = function() {
-	generateQuote();
-	document.getElementById("generate").addEventListener('click', generateQuote);
+function finalMessage() {
+  document.getElementById("quotes").innerHTML = "Veni, vidi, vici!"
+  document.getElementById("author").innerHTML = "Julius Caeser" 
 }
-
 
 newGameButtonDOM.addEventListener("click", newGame);
