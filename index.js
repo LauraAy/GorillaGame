@@ -1,4 +1,8 @@
+import {quotesArray} from './quotesArray.js'
+
+console.log(quotesArray)
 // The state of the game
+
 let state = {};
 
 let isDragging = false;
@@ -620,5 +624,20 @@ function announceWinner() {
   winnerDOM.innerText = `${state.currentPlayer}`;
   congratulationsDOM.style.visibility = "visible";
 }
+
+const generateQuote = function() {
+	
+  const quotes = quotesArray
+
+let arrayIndex = Math.floor(Math.random() * quotes.length);
+document.getElementById("quotes").innerHTML = quotes[arrayIndex].quote;
+document.getElementById("author").innerHTML = quotes[arrayIndex].author;
+}
+
+window.onload = function() {
+	generateQuote();
+	document.getElementById("generate").addEventListener('click', generateQuote);
+}
+
 
 newGameButtonDOM.addEventListener("click", newGame);
