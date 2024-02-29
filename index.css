@@ -43,6 +43,7 @@
   #congratulations {
     position: absolute;
     visibility: hidden;
+    text-align: center;
   }
   #new-game {
     position: absolute;

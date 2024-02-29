@@ -616,7 +616,7 @@ function checkGorillaHit() {
   let hit = ctx.isPointInPath(state.book.x, state.book.y);
 
   drawGorillaLeftArm(enemyPlayer);
-  hit ||= ctx.isPointInStroke(state.book.x, state.book.y);
+  hit ||= ctx.isPointInStroke(state.book, state.book.y);
 
   drawGorillaRightArm(enemyPlayer);
   hit ||= ctx.isPointInStroke(state.book.x, state.book.y);
