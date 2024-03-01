@@ -116,7 +116,7 @@ function generateBuilding(index) {
   const platformWithGorilla = index === 1 || index === 6;
 
   const minHeight = 60;
-  const maxHeight = 300;
+  const maxHeight = 350;
   const minHeightGorilla = 80;
   const maxHeightGorilla = 180;
 
