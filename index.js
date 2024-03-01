@@ -115,10 +115,10 @@ function generateBuilding(index) {
 
   const platformWithGorilla = index === 1 || index === 6;
 
-  const minHeight = 40;
-  const maxHeight = 300;
-  const minHeightGorilla = 30;
-  const maxHeightGorilla = 150;
+  const minHeight = 100;
+  const maxHeight = 500;
+  const minHeightGorilla = 150;
+  const maxHeightGorilla = 300;
 
   const height = platformWithGorilla
     ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
@@ -653,5 +653,7 @@ function finalMessage() {
   document.getElementById("quotes").innerHTML = victoryQuotes[arrayIndex].quote;
   document.getElementById("author").innerHTML = victoryQuotes[arrayIndex].author
 }
+
+
 
 newGameButtonDOM.addEventListener("click", newGame);

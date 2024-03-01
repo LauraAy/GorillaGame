@@ -10,6 +10,23 @@
     justify-content: center;
     align-items: center;
   }
+  a:visited {
+    color: white;
+  }
+  a:link {
+    color: white;
+  }
+  #footer {
+    border: 1px solid;
+    font-size: 12px;
+    position: absolute;
+    padding: 10px;
+    bottom: 0;
+    width: 100%;
+    text-align: left;
+    background-color: #4A3C68;
+  }
+
   #info-left {
     position: absolute;
     top: 20px;
