@@ -459,7 +459,7 @@ function drawBook() {
 }
 
 // Event handlers
-bookGrabAreaDOM.addEventListener("mousedown", function (e) {
+bookGrabAreaDOM.addEventListener("pointerdown", function (e) {
   if (state.phase === "aiming") {
     isDragging = true;
 
@@ -497,7 +497,7 @@ function setInfo(deltaX, deltaY) {
   }
 }
 
-window.addEventListener("mouseup", function () {
+window.addEventListener("pointerup", function () {
   if (isDragging) {
     isDragging = false;
 
