@@ -115,10 +115,10 @@ function generateBuilding(index) {
 
   const platformWithGorilla = index === 1 || index === 6;
 
-  const minHeight = 100;
-  const maxHeight = 500;
-  const minHeightGorilla = 150;
-  const maxHeightGorilla = 300;
+  const minHeight = 80;
+  const maxHeight = 400;
+  const minHeightGorilla = 100;
+  const maxHeightGorilla = 200;
 
   const height = platformWithGorilla
     ? minHeightGorilla + Math.random() * (maxHeightGorilla - minHeightGorilla)
