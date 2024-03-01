@@ -470,7 +470,7 @@ bookGrabAreaDOM.addEventListener("pointerdown", function (e) {
   }
 });
 
-window.addEventListener("mousemove", function (e) {
+window.addEventListener("pointermove", function (e) {
   if (isDragging) {
     let deltaX = e.clientX - dragStartX;
     let deltaY = e.clientY - dragStartY;
